@@ -91,18 +91,6 @@ echo "${var.vsi_meta_private_key}" > ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 echo "${var.vsi_meta_public_key}" >> ~/.ssh/authorized_keys
 echo "StrictHostKeyChecking no" >> ~/.ssh/config
-if [[ "${data.ibm_is_instance_profile.itself.disks[0].quantity[0].type}" == "fixed" ]]
-then
-    echo "###########################################################################################" >> /etc/motd
-    echo "# You have logged in to Instance storage virtual server.                                  #" >> /etc/motd
-    echo "#   - Instance storage is temporary storage that's available only while your virtual      #" >> /etc/motd
-    echo "#     server is running.                                                                  #" >> /etc/motd
-    echo "#   - Data on the drive is unrecoverable after instance shutdown, disruptive maintenance, #" >> /etc/motd
-    echo "#     or hardware failure.                                                                #" >> /etc/motd
-    echo "#                                                                                         #" >> /etc/motd
-    echo "# Refer: https://cloud.ibm.com/docs/vpc?topic=vpc-instance-storage                        #" >> /etc/motd
-    echo "###########################################################################################" >> /etc/motd
-fi
 echo "DOMAIN=\"${var.dns_domain}\"" >> "/etc/sysconfig/network-scripts/ifcfg-eth0"
 echo "MTU=9000" >> "/etc/sysconfig/network-scripts/ifcfg-eth0"
 chage -I -1 -m 0 -M 99999 -E -1 -W 14 vpcuser
@@ -259,6 +247,20 @@ resource "ibm_dns_resource_record" "sec_interface_ptr_record" {
   depends_on  = [ibm_dns_resource_record.sec_interface_a_record]
 }
 
+resource "ibm_is_volume" "volume" {
+  for_each       = {
+    for idx, count_number in range(1, var.total_vsis + 1) : idx => {
+      name       = element(tolist([for name_details in ibm_is_instance.itself : name_details.name]), idx)
+    }
+  }
+  name           = format("%s-nsd", each.value.name)
+  profile        = "custom"
+  zone           = one(var.zones)
+  iops           = 1000
+  capacity       = 10
+  resource_group = var.resource_group_id
+}
+
 output "instance_ids" {
   value      = try(toset([for instance_details in ibm_is_instance.itself : instance_details.id]), [])
   depends_on = [ibm_dns_resource_record.a_itself, ibm_dns_resource_record.ptr_itself]
@@ -269,9 +271,9 @@ output "instance_private_ips" {
   depends_on = [ibm_dns_resource_record.a_itself, ibm_dns_resource_record.ptr_itself]
 }
 
+
 output "instance_ips_with_vol_mapping" {
-  value = try({ for instance_details in ibm_is_instance.itself : instance_details.name =>
-  data.ibm_is_instance_profile.itself.disks[0].quantity[0].value == 1 ? ["/dev/vdb"] : ["/dev/vdb", "/dev/vdc"] }, {})
+  value = try({ for instance_details in ibm_is_instance.itself : instance_details.name => ["/dev/vdb"] }, {})
   depends_on = [ibm_dns_resource_record.a_itself, ibm_dns_resource_record.ptr_itself]
 }
 
