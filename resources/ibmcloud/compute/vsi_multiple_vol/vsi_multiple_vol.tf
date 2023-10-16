@@ -163,8 +163,6 @@ resource "ibm_is_instance" "itself" {
 
   boot_volume {
     name = format("%s-boot-%03s", var.vsi_name_prefix, each.value.sequence_string)
-    iops = 3000
-    profile = "custom"
   }
 }
 
@@ -249,7 +247,7 @@ resource "ibm_dns_resource_record" "sec_interface_ptr_record" {
   depends_on  = [ibm_dns_resource_record.sec_interface_a_record]
 }
 
-resource "ibm_is_instance_volume_attachment" "nsd" {
+resource "ibm_is_instance_volume_attachment" "nsd-1" {
   for_each       = {
     for idx, count_number in range(1, var.total_vsis + 1) : idx => {
       name       = element(tolist([for name_details in ibm_is_instance.itself : name_details.name]), idx)
@@ -257,13 +255,28 @@ resource "ibm_is_instance_volume_attachment" "nsd" {
     }
   }
   instance       = each.value.id
-  name           = format("%s-nsd", each.value.name)
+  name           = format("%s-nsd-1", each.value.name)
   profile        = "sdp"
-  iops           = 1000
-  capacity       = 10
+  iops           = 3000
+  capacity       = 1000
   delete_volume_on_attachment_delete = false
   delete_volume_on_instance_delete   = false
-  #resource_group = var.resource_group_id
+}
+
+resource "ibm_is_instance_volume_attachment" "nsd-2" {
+  for_each       = {
+    for idx, count_number in range(1, var.total_vsis + 1) : idx => {
+      name       = element(tolist([for name_details in ibm_is_instance.itself : name_details.name]), idx)
+      id         = element(tolist([for name_details in ibm_is_instance.itself : name_details.id]), idx)
+    }
+  }
+  instance       = each.value.id
+  name           = format("%s-nsd-2", each.value.name)
+  profile        = "sdp"
+  iops           = 3000
+  capacity       = 1000
+  delete_volume_on_attachment_delete = false
+  delete_volume_on_instance_delete   = false
 }
 
 output "instance_ids" {
@@ -278,7 +291,7 @@ output "instance_private_ips" {
 
 
 output "instance_ips_with_vol_mapping" {
-  value = try({ for instance_details in ibm_is_instance.itself : instance_details.name => ["/dev/vdb"] }, {})
+  value = try({ for instance_details in ibm_is_instance.itself : instance_details.name => ["/dev/vdb", "/dev/vdc"] }, {})
   depends_on = [ibm_dns_resource_record.a_itself, ibm_dns_resource_record.ptr_itself]
 }
 
