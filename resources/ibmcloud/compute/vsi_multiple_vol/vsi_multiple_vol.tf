@@ -254,9 +254,9 @@ resource "ibm_is_volume" "volume" {
     }
   }
   name           = format("%s-nsd", each.value.name)
-  profile        = "custom"
+  profile        = "sdp"
   zone           = one(var.zones)
-  iops           = 1000
+  iops           = 3000
   capacity       = 10
   resource_group = var.resource_group_id
 }
