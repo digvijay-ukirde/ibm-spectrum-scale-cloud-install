@@ -163,6 +163,8 @@ resource "ibm_is_instance" "itself" {
 
   boot_volume {
     name = format("%s-boot-%03s", var.vsi_name_prefix, each.value.sequence_string)
+    iops = 3000
+    profile = "custom"
   }
 }
 
@@ -247,18 +249,21 @@ resource "ibm_dns_resource_record" "sec_interface_ptr_record" {
   depends_on  = [ibm_dns_resource_record.sec_interface_a_record]
 }
 
-resource "ibm_is_volume" "volume" {
+resource "ibm_is_instance_volume_attachment" "nsd" {
   for_each       = {
     for idx, count_number in range(1, var.total_vsis + 1) : idx => {
       name       = element(tolist([for name_details in ibm_is_instance.itself : name_details.name]), idx)
+      id         = element(tolist([for name_details in ibm_is_instance.itself : name_details.id]), idx)
     }
   }
+  instance       = each.value.id
   name           = format("%s-nsd", each.value.name)
   profile        = "sdp"
-  zone           = one(var.zones)
-  iops           = 3000
+  iops           = 1000
   capacity       = 10
-  resource_group = var.resource_group_id
+  delete_volume_on_attachment_delete = false
+  delete_volume_on_instance_delete   = false
+  #resource_group = var.resource_group_id
 }
 
 output "instance_ids" {
