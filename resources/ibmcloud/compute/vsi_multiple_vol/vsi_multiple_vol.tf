@@ -257,7 +257,7 @@ resource "ibm_is_instance_volume_attachment" "nsd-1" {
   instance       = each.value.id
   name           = format("%s-nsd-1", each.value.name)
   profile        = "sdp"
-  iops           = 3000
+  iops           = 20000
   capacity       = 1000
   delete_volume_on_attachment_delete = false
   delete_volume_on_instance_delete   = false
@@ -273,7 +273,7 @@ resource "ibm_is_instance_volume_attachment" "nsd-2" {
   instance       = each.value.id
   name           = format("%s-nsd-2", each.value.name)
   profile        = "sdp"
-  iops           = 3000
+  iops           = 20000
   capacity       = 1000
   delete_volume_on_attachment_delete = false
   delete_volume_on_instance_delete   = false
