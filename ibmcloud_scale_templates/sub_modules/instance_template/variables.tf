@@ -41,7 +41,7 @@ variable "total_compute_cluster_instances" {
 }
 
 variable "compute_cluster_key_pair" {
-  type        = string
+  type        = list(string)
   description = "The key pair to use to launch the compute cluster host."
 }
 
@@ -94,7 +94,7 @@ variable "storage_vsi_profile" {
 }
 
 variable "storage_cluster_key_pair" {
-  type        = string
+  type        = list(string)
   description = "The key pair to use to launch the storage cluster host."
 }
 
@@ -318,7 +318,7 @@ variable "total_gklm_instances" {
 }
 
 variable "gklm_instance_key_pair" {
-  type        = string
+  type        = list(string)
   default     = null
   description = "The key pair to use to launch the GKLM host."
 }
