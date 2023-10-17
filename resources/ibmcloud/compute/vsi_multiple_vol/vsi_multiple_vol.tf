@@ -260,8 +260,9 @@ resource "ibm_is_instance_volume_attachment" "nsd-1" {
   profile        = "sdp"
   iops           = 20000
   capacity       = 1000
-  delete_volume_on_attachment_delete = false
-  delete_volume_on_instance_delete   = false
+  delete_volume_on_attachment_delete = true
+  delete_volume_on_instance_delete   = true
+  volume_name    = format("%s-nsd-1", each.value.name)
 }
 
 resource "ibm_is_instance_volume_attachment" "nsd-2" {
@@ -276,8 +277,9 @@ resource "ibm_is_instance_volume_attachment" "nsd-2" {
   profile        = "sdp"
   iops           = 20000
   capacity       = 1000
-  delete_volume_on_attachment_delete = false
-  delete_volume_on_instance_delete   = false
+  delete_volume_on_attachment_delete = true
+  delete_volume_on_instance_delete   = true
+  volume_name    = format("%s-nsd-2", each.value.name)
 }
 
 output "instance_ids" {
