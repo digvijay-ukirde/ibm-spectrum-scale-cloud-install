@@ -21,9 +21,9 @@ locals {
 
 # Getting bandwidth of compute and storage vsi and based on that checking mrot will be enabled or not.
 locals {
-  enable_sec_interface_compute = data.ibm_is_instance_profile.compute_profile.bandwidth[0].value >= 64000 ? true : false
-  enable_sec_interface_storage = var.storage_type != "persistent" && data.ibm_is_instance_profile.storage_profile.bandwidth[0].value >= 64000 ? true : false
-  enable_mrot_conf             = local.enable_sec_interface_compute && local.enable_sec_interface_storage ? true : false
+  enable_sec_interface_compute = false
+  enable_sec_interface_storage = false
+  enable_mrot_conf             = false
 }
 
 module "generate_compute_cluster_keys" {
