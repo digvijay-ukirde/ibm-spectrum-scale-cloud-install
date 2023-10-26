@@ -294,7 +294,7 @@ output "instance_private_ips" {
 
 
 output "instance_ips_with_vol_mapping" {
-  value = try({ for instance_details in ibm_is_instance.itself : instance_details.name => ["/dev/vdb", "/dev/vdc"] }, {})
+  value = try({ for instance_details in ibm_is_instance.itself : instance_details.name => ["/dev/vdd", "/dev/vde"] }, {})
   depends_on = [ibm_dns_resource_record.a_itself, ibm_dns_resource_record.ptr_itself]
 }
 
