@@ -160,7 +160,7 @@ resource "ibm_is_instance" "itself" {
   keys           = var.vsi_user_public_key
   resource_group = var.resource_group_id
   user_data      = data.template_file.metadata_startup_script.rendered
-  total_volume_bandwidth = 32000
+  total_volume_bandwidth = 16000
 
   boot_volume {
     name = format("%s-boot-%03s", var.vsi_name_prefix, each.value.sequence_string)
