@@ -850,6 +850,7 @@ if __name__ == "__main__":
                                "ibm-spectrum-scale-install-infra",
                                "group_vars",
                                "%s_cluster_config.yaml" % cluster_type), 'w') as groupvar:
+        scale_config['scale_cluster_config'] = {}
         scale_config['scale_cluster_config']['ephemeral_port_range'] = "60000-61000"
         yaml.dump(scale_config, groupvar, default_flow_style=False)
     if ARGUMENTS.verbose:
