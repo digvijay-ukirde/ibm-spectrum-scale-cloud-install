@@ -442,19 +442,6 @@ def initialize_node_details(az_count, cls_type, compute_cluster_instance_names, 
     return node_details
 
 
-def initialize_scale_config_details(node_classes, param_key, param_value):
-    """ Initialize scale cluster config details.
-    :args: node_class (list), param_key (string), param_value (string)
-    """
-    scale_config = {}
-    scale_config['scale_config'], scale_config['scale_cluster_config'] = [], {}
-    for each_node in node_classes:
-        scale_config['scale_config'].append({"nodeclass": each_node,
-                                             "params": [{param_key: param_value}]})
-    scale_config['scale_cluster_config']['ephemeral_port_range'] = "60000-61000"
-    return scale_config
-
-
 def get_disks_list(az_count, disk_mapping, desc_disk_mapping, disk_type):
     """ Initialize disk list. """
     disks_list = []
@@ -863,6 +850,7 @@ if __name__ == "__main__":
                                "ibm-spectrum-scale-install-infra",
                                "group_vars",
                                "%s_cluster_config.yaml" % cluster_type), 'w') as groupvar:
+        scale_config['scale_cluster_config']['ephemeral_port_range'] = "60000-61000"
         yaml.dump(scale_config, groupvar, default_flow_style=False)
     if ARGUMENTS.verbose:
         print("group_vars content:\n%s" % yaml.dump(
