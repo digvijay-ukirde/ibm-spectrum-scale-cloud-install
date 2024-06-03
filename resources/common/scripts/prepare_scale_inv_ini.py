@@ -32,24 +32,6 @@ def cleanup(target_file):
         os.remove(target_file)
 
 
-def calculate_pagepool(memory_size, max_pagepool_gb):
-    """ Calculate pagepool """
-    # 1 MiB = 1.048576 MB
-    mem_size_mb = int(int(memory_size) * 1.048576)
-    # 1 MB = 0.001 GB
-    mem_size_gb = int(mem_size_mb * 0.001)
-    # Fix Me:
-    if max_pagepool_gb == 256:
-        pagepool_gb = max(int(int(mem_size_gb)*int(40)*0.01), 1)
-    else:
-        pagepool_gb = max(int(int(mem_size_gb)*int(25)*0.01), 1)
-    if pagepool_gb > int(max_pagepool_gb):
-        pagepool = int(max_pagepool_gb)
-    else:
-        pagepool = pagepool_gb
-    return "{}G".format(pagepool)
-
-
 def create_directory(target_directory):
     """ Create specified directory """
     pathlib.Path(target_directory).mkdir(parents=True, exist_ok=True)
@@ -614,9 +596,6 @@ if __name__ == "__main__":
                         help='Bastion SSH public ip address')
     PARSER.add_argument('--bastion_ssh_private_key',
                         help='Bastion SSH private key path')
-    PARSER.add_argument('--memory_size', help='Instance memory size')
-    PARSER.add_argument('--max_pagepool_gb', help='maximum pagepool size in GB',
-                        default=1)
     PARSER.add_argument('--disk_type', help='Disk type')
     PARSER.add_argument('--default_data_replicas',
                         help='Value for default data replica')
@@ -681,10 +660,6 @@ if __name__ == "__main__":
         gui_password = ARGUMENTS.gui_password
         profile_path = "%s/computesncparams" % ARGUMENTS.install_infra_path
         replica_config = False
-        pagepool_size = calculate_pagepool(
-            ARGUMENTS.memory_size, ARGUMENTS.max_pagepool_gb)
-        scale_config = initialize_scale_config_details(
-            ["computenodegrp"], "pagepool", pagepool_size)
     elif len(TF['compute_cluster_instance_private_ips']) == 0 and \
             len(TF['storage_cluster_instance_private_ips']) > 0 and \
             len(TF['vpc_availability_zones']) == 1:
@@ -705,10 +680,6 @@ if __name__ == "__main__":
         gui_password = ARGUMENTS.gui_password
         profile_path = "%s/storagesncparams" % ARGUMENTS.install_infra_path
         replica_config = bool(len(TF['vpc_availability_zones']) > 1)
-        pagepool_size = calculate_pagepool(
-            ARGUMENTS.memory_size, ARGUMENTS.max_pagepool_gb)
-        scale_config = initialize_scale_config_details(
-            ["storagenodegrp"], "pagepool", pagepool_size)
     elif len(TF['compute_cluster_instance_private_ips']) == 0 and \
             len(TF['storage_cluster_instance_private_ips']) > 0 and \
             len(TF['vpc_availability_zones']) > 1 and \
@@ -730,10 +701,6 @@ if __name__ == "__main__":
         gui_password = ARGUMENTS.gui_password
         profile_path = "%s/storagesncparams" % ARGUMENTS.install_infra_path
         replica_config = bool(len(TF['vpc_availability_zones']) > 1)
-        pagepool_size = calculate_pagepool(
-            ARGUMENTS.memory_size, ARGUMENTS.max_pagepool_gb)
-        scale_config = initialize_scale_config_details(
-            ["storagenodegrp", "computedescnodegrp"], "pagepool", pagepool_size)
     else:
         cluster_type = "combined"
         cleanup("%s/%s/%s_inventory.ini" % (ARGUMENTS.install_infra_path,
@@ -749,14 +716,6 @@ if __name__ == "__main__":
         gui_password = ARGUMENTS.gui_password
         profile_path = "%s/scalesncparams" % ARGUMENTS.install_infra_path
         replica_config = bool(len(TF['vpc_availability_zones']) > 1)
-        pagepool_size = calculate_pagepool(
-            ARGUMENTS.memory_size, ARGUMENTS.max_pagepool_gb)
-        if len(TF['vpc_availability_zones']) == 1:
-            scale_config = initialize_scale_config_details(
-                ["storagenodegrp", "computenodegrp"], "pagepool", pagepool_size)
-        else:
-            scale_config = initialize_scale_config_details(
-                ["storagenodegrp", "computenodegrp", "computedescnodegrp"], "pagepool", pagepool_size)
 
     print("Identified cluster type: %s" % cluster_type)
 
