@@ -862,8 +862,6 @@ module "compute_cluster_configuration" {
   using_rest_initialization       = var.using_rest_api_remote_mount
   compute_cluster_gui_username    = var.compute_cluster_gui_username
   compute_cluster_gui_password    = var.compute_cluster_gui_password
-  memory_size                     = data.ibm_is_instance_profile.compute_profile.memory[0].value * 1000
-  max_pagepool_gb                 = 4
   bastion_instance_public_ip      = var.bastion_instance_public_ip
   bastion_ssh_private_key         = var.bastion_ssh_private_key
   meta_private_key                = module.generate_compute_cluster_keys.private_key_content
@@ -896,8 +894,6 @@ module "storage_cluster_configuration" {
   using_rest_initialization       = true
   storage_cluster_gui_username    = var.storage_cluster_gui_username
   storage_cluster_gui_password    = var.storage_cluster_gui_password
-  memory_size                     = var.storage_type == "persistent" ? data.ibm_is_bare_metal_server_profile.storage_bare_metal_server_profile[0].memory[0].value * 1000 : data.ibm_is_instance_profile.storage_profile.memory[0].value * 1000
-  max_pagepool_gb                 = var.colocate_protocol_cluster_instances == true ? 256 : 32
   vcpu_count                      = var.storage_type == "persistent" ? data.ibm_is_bare_metal_server_profile.storage_bare_metal_server_profile[0].cpu_core_count[0].value * data.ibm_is_bare_metal_server_profile.storage_bare_metal_server_profile[0].cpu_socket_count[0].value : data.ibm_is_instance_profile.storage_profile.vcpu_count[0].value
   max_mbps                        = var.storage_type == "persistent" ? data.ibm_is_bare_metal_server_profile.storage_bare_metal_server_profile[0].bandwidth[0].value * 0.25 : data.ibm_is_instance_profile.storage_profile.bandwidth[0].value * 0.25
   disk_type                       = "network-attached"
