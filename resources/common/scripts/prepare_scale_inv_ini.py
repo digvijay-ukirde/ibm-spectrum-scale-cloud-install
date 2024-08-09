@@ -232,7 +232,7 @@ def prepare_ansible_playbook(hosts_config, cluster_config, cluster_key_file):
      - {{ role: nfs_file_share, when: enable_ces }}
      - {{ role: afm_cos_prepare, when: enable_afm }}
      - {{ role: afm_cos_install, when: "enable_afm and scale_packages_installed is false" }}
-     - {{ role: afm_cos_configure, when: enable_afm }}
+#     - {{ role: afm_cos_configure, when: enable_afm }}
 """.format(hosts_config=hosts_config, cluster_config=cluster_config,
            cluster_key_file=cluster_key_file)
     return content
